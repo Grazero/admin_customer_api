@@ -56,6 +56,14 @@ if (app.Environment.IsDevelopment())
         c.SwaggerEndpoint("/swagger/v1/swagger.json", "Customer API V1");
     });
 }
+else
+{
+    app.UseSwagger();
+    app.UseSwaggerUI(c => 
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "Customer API V1");
+    });
+}
 
 // ✅ ใช้ API Key Middleware แบบเลือก性地 - ข้าม Swagger
 app.UseWhen(context => 
