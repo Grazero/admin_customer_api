@@ -22,7 +22,7 @@ builder.Services.AddSwaggerGen(c =>
     // ✅ Add API Key Support to Swagger
     c.AddSecurityDefinition("ApiKey", new OpenApiSecurityScheme
     {
-        Description = "API Key needed to access the endpoints. Example: 'my-secret-key-123-wwwwssadw'",
+        Description = "API Key needed to access the endpoints. Example: 'didyouknow-lekchaiyawit-bro'",
         Type = SecuritySchemeType.ApiKey,
         Name = "X-API-Key",
         In = ParameterLocation.Header,
@@ -45,31 +45,44 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
+// เพิ่ม CORS Policy
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", policy =>
+    {
+         policy.AllowAnyOrigin()
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
+});
+
 var app = builder.Build();
 
-// ✅ Configure Swagger UI มาก่อน
+// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI(c => 
-    {
-        c.SwaggerEndpoint("/swagger/v1/swagger.json", "Customer API V1");
-    });
-}
-else
-{
-    app.UseSwagger();
-    app.UseSwaggerUI(c => 
-    {
-        c.SwaggerEndpoint("/swagger/v1/swagger.json", "Customer API V1");
-    });
+    app.UseDeveloperExceptionPage();
 }
 
-// ✅ ใช้ API Key Middleware แบบเลือก性地 - ข้าม Swagger
+// ✅ ใช้ CORS ต้องอยู่ลำดับแรกๆ
+app.UseCors("AllowAll");
+
+// ✅ แสดง Swagger ในทุก Environment
+app.UseSwagger();
+app.UseSwaggerUI(c => 
+{
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Customer API V1");
+    c.RoutePrefix = "swagger"; // ทำให้แน่ใจว่า path ถูกต้อง
+});
+
+
+
+// ✅ ใช้ API Key Middleware แบบเลือก性地 - ข้าม Swagger และ root
 app.UseWhen(context => 
     !context.Request.Path.StartsWithSegments("/swagger") &&
     context.Request.Path != "/" &&
-    !context.Request.Path.StartsWithSegments("/index.html"),
+    context.Request.Path != "/swagger/index.html" &&
+    !context.Request.Path.StartsWithSegments("/swagger/v1/swagger.json"),
     appBuilder => 
     {
         appBuilder.UseMiddleware<ApiKeyMiddleware>();
