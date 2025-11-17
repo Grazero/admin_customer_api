@@ -48,6 +48,11 @@ namespace admin_customer_api.Service
             // คำนวณอายุ
             int age = CalculateAge(birthDate);
 
+            if(age < 0)
+            {
+                age = 0;
+            }
+
             string birthday_string =birthDate.Year.ToString()+"-"+birthDate.Month.ToString()+"-"+birthDate.Day.ToString();
             
 

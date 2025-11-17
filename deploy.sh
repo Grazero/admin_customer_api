@@ -8,9 +8,9 @@ rsync -avz \
   --exclude='*.db' \
   --exclude='*.sqlite' \
   /Users/chaiyawit/Documents/GitHub/admin_customer_api/ \
-  lek@conandroid.duckdns.org:/home/lek/admin_customer_api/
+  lek@58.11.12.72:/home/lek/admin_customer_api/
 
 echo "Restarting container on server..."
-ssh lek@conandroid.duckdns.org "cd /home/lek/admin_customer_api && docker-compose down && docker-compose up -d --build"
+ssh lek@58.11.12.72 "cd /home/lek/admin_customer_api && docker-compose down && docker-compose up -d --build"
 
 echo "Deployment completed!"
