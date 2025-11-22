@@ -1,6 +1,5 @@
 using admin_customer_api.Service;
 using Microsoft.OpenApi.Models;
-using Microsoft.AspNetCore.HttpOverrides; // 💡 ต้องเพิ่ม using นี้
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -8,13 +7,13 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 
 // 💡 NEW: ตั้งค่าให้เชื่อถือ Header จาก Proxy (สำคัญมากสำหรับ Docker/NPM)
-builder.Services.Configure<ForwardedHeadersOptions>(options =>
-{
-    options.ForwardedHeaders = 
-        ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
-    // เนื่องจากการใช้ Docker/NPM เราอาจไม่จำเป็นต้องระบุ IP ของ Proxy
-    // แต่ถ้ายังไม่ได้ผล ให้ลองระบุ Networks ของ Docker Host IP ในภายหลัง
-});
+// builder.Services.Configure<ForwardedHeadersOptions>(options =>
+// {
+//     options.ForwardedHeaders = 
+//         ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+//     // เนื่องจากการใช้ Docker/NPM เราอาจไม่จำเป็นต้องระบุ IP ของ Proxy
+//     // แต่ถ้ายังไม่ได้ผล ให้ลองระบุ Networks ของ Docker Host IP ในภายหลัง
+// });
 
 builder.Services.AddScoped<IDcServices, DC_service>();
 
@@ -85,10 +84,9 @@ app.UseSwaggerUI(c =>
 });
 
 // 💡 NEW: ใช้ Forwarded Headers Middleware
-app.UseForwardedHeaders();
+//app.UseForwardedHeaders();
 
 
-// ✅ ใช้ API Key Middleware แบบเลือก性地 - ข้าม Swagger และ root
 app.UseWhen(context => 
     !context.Request.Path.StartsWithSegments("/swagger") &&
     context.Request.Path != "/" &&
@@ -100,7 +98,7 @@ app.UseWhen(context =>
     }
 );
 
-//app.UseHttpsRedirection();
+app.UseHttpsRedirection();
 app.UseAuthorization();
 app.MapControllers();
 
