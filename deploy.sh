@@ -11,6 +11,6 @@ rsync -avz \
   lek@58.11.9.214:/home/lek/admin_customer_api/
 
 echo "Restarting container on server..."
-ssh lek@58.11.9.214 "cd /home/lek/admin_customer_api && docker-compose down && docker-compose up -d --build"
+ssh lek@58.11.9.214 "cd /home/lek/admin_customer_api && docker-compose down && docker system prune -f && docker-compose -f docker-compose.prod.yml up -d --build"
 
 echo "Deployment completed!"

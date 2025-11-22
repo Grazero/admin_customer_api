@@ -1,4 +1,5 @@
 using admin_customer_api.Service;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.OpenApi.Models;
 var builder = WebApplication.CreateBuilder(args);
 
@@ -7,13 +8,19 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 
 // 💡 NEW: ตั้งค่าให้เชื่อถือ Header จาก Proxy (สำคัญมากสำหรับ Docker/NPM)
-// builder.Services.Configure<ForwardedHeadersOptions>(options =>
-// {
-//     options.ForwardedHeaders = 
-//         ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
-//     // เนื่องจากการใช้ Docker/NPM เราอาจไม่จำเป็นต้องระบุ IP ของ Proxy
-//     // แต่ถ้ายังไม่ได้ผล ให้ลองระบุ Networks ของ Docker Host IP ในภายหลัง
-// });
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders = 
+        ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+    // เนื่องจากการใช้ Docker/NPM เราอาจไม่จำเป็นต้องระบุ IP ของ Proxy
+    // แต่ถ้ายังไม่ได้ผล ให้ลองระบุ Networks ของ Docker Host IP ในภายหลัง
+});
+
+// เพิ่มก่อน builder.Build()
+builder.Services.AddHttpsRedirection(options =>
+{
+    options.HttpsPort = 443;  // ← บอกว่า HTTPS ใช้พอร์ต 443 (ของ NPM)
+});
 
 builder.Services.AddScoped<IDcServices, DC_service>();
 
@@ -84,7 +91,7 @@ app.UseSwaggerUI(c =>
 });
 
 // 💡 NEW: ใช้ Forwarded Headers Middleware
-//app.UseForwardedHeaders();
+app.UseForwardedHeaders();
 
 
 app.UseWhen(context => 
@@ -98,7 +105,7 @@ app.UseWhen(context =>
     }
 );
 
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
 app.UseAuthorization();
 app.MapControllers();
 
